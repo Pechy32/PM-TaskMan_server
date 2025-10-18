@@ -1,13 +1,13 @@
 import express from 'express';
 import { createTaskService } from '../service/task/createTaskService.js';
-import { getAllTasksService } from '../service/task/getAllTasksService.js';
+import { getTasksByProjectService } from '../service/task/getTasksByProjectService.js';
 import { getTaskService } from '../service/task/getTaskService.js';
 import { updateTaskService } from '../service/task/updateTaskService.js';
 import { deleteTaskService } from '../service/task/deleteTaskService.js';
 
 const router = express.Router();
 
-router.get('/', getAllTasksService);
+router.get('/', getTasksByProjectService);
 router.post('/', createTaskService);
 router.get('/:id', getTaskService);
 router.patch('/:id', updateTaskService);

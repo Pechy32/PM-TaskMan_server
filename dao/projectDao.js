@@ -1,8 +1,8 @@
 import { Project } from "../model/projectModel.js";
 
 export const createProject = async (data) => {
-  const solver = new Project(data);
-  return await solver.save();
+  const project = new Project(data);
+  return await project.save();
 };
 
 export const getAllProjects = async () => {

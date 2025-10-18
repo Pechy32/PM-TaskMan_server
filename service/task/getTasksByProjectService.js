@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
 import { getTasksByProject, getSubtasks } from "../../dao/taskDao.js";
 
-export async function getAllTasksService(req, res) {
-  const { projectId } = req.params;
+export async function getTasksByProjectService(req, res) {
+
+  //projectId passed as query parameter
+  const { projectId } = req.query;
+  if (!projectId) {
+    return res.status(400).json({ message: "Missing required query parameter: projectId" });
+  }
 
   if (!mongoose.Types.ObjectId.isValid(projectId)) {
-    return res.status(400).json({ message: "Invalid project ID" });
+    return res.status(400).json({ message: "Invalid project ID format" });
   }
 
   try {
