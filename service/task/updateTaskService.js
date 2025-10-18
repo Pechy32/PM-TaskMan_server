@@ -1,19 +1,24 @@
+import mongoose from "mongoose";
 import { updateTask } from "../../dao/taskDao.js";
-import mongoose from 'mongoose';
 
-// API handler for updating task
 export async function updateTaskService(req, res) {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'Invalid task ID' });
+  const { id } = req.params;
+  const updates = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid task ID" });
   }
+
+  if (!updates || Object.keys(updates).length === 0) {
+    return res.status(400).json({ message: "No update data provided" });
+  }
+
   try {
-    const task = await updateTask(req.params.id, req.body);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
-    res.json(task);
+    const updatedTask = await updateTask(id, updates);
+    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
+
+    res.json(updatedTask);
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ errors: error.errors });
-    }
     res.status(500).json({ message: error.message });
   }
 }

@@ -1,0 +1,9 @@
+{
+  "projectId": "670f7f427dd9b22dc4af9a10",
+  "parentTaskId": "670f80107dd9b22dc4af9a20",
+  "title": "Hashování hesla pomocí bcrypt",
+  "description": "Použít bcrypt s cost factor 10 pro bezpečné ukládání hesel.",
+  "status": "todo",
+  "priority": "medium",
+  "assignedTo": "670f7e4f7dd9b22dc4af9a01"
+}

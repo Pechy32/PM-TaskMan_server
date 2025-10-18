@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors()); // allows all origins by default
 
 // Database connection
-mongoose.connect('mongodb://localhost:27017/task-user', {
+mongoose.connect('mongodb://localhost:27017/taskmandb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -28,9 +28,9 @@ mongoose.connection.on('error', (err) => {
 });
 
 // Controllers
-app.use('/tasks', taskController);
-app.use('/users', userController);
-app.use('/projects', projectController);
+app.use('/api/tasks', taskController);
+app.use('/api/users', userController);
+app.use('/api/projects', projectController);
 
 // Start server
 app.listen(PORT, () => {

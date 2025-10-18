@@ -1,0 +1,19 @@
+{
+  "projectId": "670f7f427dd9b22dc4af9a10",
+  "title": "Implementace autentizace pomocí JWT",
+  "description": "Zajistit přihlášení, registraci a ochranu privátních endpointů.",
+  "status": "in-progress",
+  "priority": "high",
+  "assignedTo": "670f7e4f7dd9b22dc4af9a01",
+  "dueDate": "2025-11-01T00:00:00.000Z",
+  "comments": [
+    {
+      "authorId": "670f7e4f7dd9b22dc4af9a02",
+      "content": "Nezapomeň vytvořit refresh token endpoint."
+    },
+    {
+      "authorId": "670f7e4f7dd9b22dc4af9a03",
+      "content": "JWT secret ulož do .env souboru."
+    }
+  ]
+}

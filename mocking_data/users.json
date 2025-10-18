@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Tomáš Pecháček",
+    "email": "tomas.pechacek@example.com",
+    "passwordHash": "$2b$10$examplehashfor.tomas"
+  },
+  {
+    "name": "Jana Novotná",
+    "email": "jana.novotna@example.com",
+    "passwordHash": "$2b$10$examplehashfor.jana"
+  },
+  {
+    "name": "Petr Dvořák",
+    "email": "petr.dvorak@example.com",
+    "passwordHash": "$2b$10$examplehashfor.petr"
+  }
+]

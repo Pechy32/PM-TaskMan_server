@@ -1,0 +1,19 @@
+{
+  "name": "Task Management System",
+  "description": "Interní aplikace pro správu úkolů, projektů a uživatelů.",
+  "ownerId": "670f7e4f7dd9b22dc4af9a01",
+  "members": [
+    {
+      "userId": "670f7e4f7dd9b22dc4af9a01",
+      "role": "owner"
+    },
+    {
+      "userId": "670f7e4f7dd9b22dc4af9a02",
+      "role": "editor"
+    },
+    {
+      "userId": "670f7e4f7dd9b22dc4af9a03",
+      "role": "viewer"
+    }
+  ]
+}
