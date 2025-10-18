@@ -5,12 +5,14 @@ import { getAllProjectsService } from '../service/project/getAllProjectsService.
 import { getProjectService } from '../service/project/getProjectService.js';
 import { updateProjectService } from '../service/project/updateProjectService.js';
 import { deleteProjectService } from '../service/project/deleteProjectService.js';
+import { getTasksByProjectService } from '../service/project/getTasksByProjectService.js';
 
 const router = express.Router();
 
 router.get('/', getAllProjectsService);
 router.post('/', createProjectService);
 router.get('/:id', getProjectService);
+router.get('/:id/tasks', getTasksByProjectService);
 router.patch('/:id', updateProjectService);
 router.delete('/:id', deleteProjectService);
 

@@ -10,6 +10,12 @@ export async function getTaskById(taskId) {
     .populate("comments.authorId", "name");
 }
 
+export async function getAllTasks(){
+  return await Task.find()
+    .populate("assignedTo", "name email")
+    .sort({ createdAt: -1 });
+}
+
 export async function getTasksByProject(projectId) {
   return await Task.find({ projectId, parentTaskId: null })
     .populate("assignedTo", "name")
