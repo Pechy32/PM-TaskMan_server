@@ -27,7 +27,7 @@ export async function getSubtasks(parentTaskId) {
 }
 
 export async function updateTask(taskId, updates) {
-  return await Task.findByIdAndUpdate(taskId, updates, { new: true });
+  return await Task.findByIdAndUpdate(taskId, updates, { new: true, runValidators: true });
 }
 
 export async function deleteTask(taskId) {
