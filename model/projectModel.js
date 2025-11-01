@@ -8,7 +8,7 @@ const projectMemberSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["owner", "editor", "viewer"],
+    enum: ["editor", "viewer"],
     default: "viewer",
   }
 }, { _id: false });
