@@ -46,8 +46,8 @@ export async function updateTaskService(req, res) {
     const updatedTask = await updateTask(id, updates);
     if (!updatedTask) return res.status(404).json({ message: "Task not found" });
 
-    res.json(updatedTask);
+    return res.json(updatedTask);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

@@ -9,8 +9,8 @@ export async function createTaskService(req, res) {
 
   try {
     const task = await createTask(taskData);
-    res.status(201).json(task);
+    return res.status(201).json(task);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

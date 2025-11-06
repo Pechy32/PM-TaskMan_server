@@ -2,13 +2,13 @@ import jwt from 'jsonwebtoken';
 
 const SECRET = process.env.JWT_SECRET || "some_real_secret";
 
-const ACCESS_TOKEN_TTL = '5m';
+const ACCESS_TOKEN_TTL = '1h';
 const REFRESH_TOKEN_TTL = '7d';
 
-export function createTokens(userIdentifier, role) {
+export function createTokens(userIdentifier, userType) {
     const common = {
         userIdentifier,
-        role,
+        userType,
     };
 
     const now = Date.now();
@@ -42,6 +42,6 @@ export function refreshToken(oldRefreshToken) {
         return null;
     }
 
-    const { userId, role } = payload;
-    return createTokens(userId, role);
+    const { userIdentifier, role } = payload;
+    return createTokens(userIdentifier, role);
 }

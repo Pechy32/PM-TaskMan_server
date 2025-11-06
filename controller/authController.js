@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { createTokens } from '../service/auth/jwtService.js';
 import { loginWithEmail } from '../service/auth/authService.js';
 
 const router = express.Router();

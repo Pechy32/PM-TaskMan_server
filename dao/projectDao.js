@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 import { Project } from "../model/projectModel.js";
 
 export const createProject = async (data) => {
@@ -10,7 +12,13 @@ export const getAllProjects = async () => {
 };
 
 export const getProject = async (id) => {
-  return await Project.findById(id);
+  let objectId;
+  if (mongoose.Types.ObjectId.isValid(id)) {
+      objectId = id;
+  } else {
+      objectId = new mongoose.Types.ObjectId(id);
+  }
+  return await Project.findById(objectId);
 };
 
 export const updateProject = async (id, data) => {

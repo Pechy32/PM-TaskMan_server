@@ -9,6 +9,7 @@ import authController from './controller/authController.js';
 
 import logger from './middleware/logger.js'
 import authMiddleware from './middleware/auth.js'
+import { validateProject, validateProjectId } from './middleware/projectIdValidator.js';
 
 // Create Express app
 const app = express();
@@ -32,15 +33,14 @@ mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
 });
 
-// Middlewares
+// Middlewares (depends on order of declaration!)
 app.use(logger);
-app.use(authMiddleware);
 
 // Controllers
-app.use('/api/tasks', taskController);
-app.use('/api/users', userController);
-app.use('/api/projects', projectController);
-app.use('/api/auth', authController);
+app.use('/api/auth', authMiddleware, authController);
+app.use('/api/users', authMiddleware, userController);
+// app.use('/api/projects', authMiddleware, projectController);
+app.use('/api/:projectId/tasks', validateProject, authMiddleware, taskController);
 
 // Start server
 app.listen(PORT, () => {
