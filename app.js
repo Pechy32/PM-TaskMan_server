@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import cors from 'cors'; 
 import taskController from './controller/taskController.js';
 import userController from './controller/userController.js';
-import projectController from './controller/projectController.js'
+import projectController from './controller/projectController.js';
+import logger from './middleware/logger.js'
 
 // Create Express app
 const app = express();
@@ -26,6 +27,9 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
 });
+
+// Middlewares
+app.use(logger);
 
 // Controllers
 app.use('/api/tasks', taskController);
