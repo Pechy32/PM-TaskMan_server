@@ -13,6 +13,10 @@ export const getUser = async (id) => {
   return await User.findById(id);
 };
 
+export const getUserByEmail = async (email) => {
+  return await User.findOne({ email });
+};
+
 export const updateUser = async (id, data) => {
   return await User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 };

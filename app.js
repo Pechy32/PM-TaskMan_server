@@ -1,10 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors'; 
+
 import taskController from './controller/taskController.js';
 import userController from './controller/userController.js';
 import projectController from './controller/projectController.js';
+import authController from './controller/authController.js';
+
 import logger from './middleware/logger.js'
+import authMiddleware from './middleware/auth.js'
 
 // Create Express app
 const app = express();
@@ -30,11 +34,13 @@ mongoose.connection.on('error', (err) => {
 
 // Middlewares
 app.use(logger);
+app.use(authMiddleware);
 
 // Controllers
 app.use('/api/tasks', taskController);
 app.use('/api/users', userController);
 app.use('/api/projects', projectController);
+app.use('/api/auth', authController);
 
 // Start server
 app.listen(PORT, () => {
