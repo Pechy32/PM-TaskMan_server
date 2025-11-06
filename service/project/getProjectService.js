@@ -1,14 +1,17 @@
 import { getProject } from "../../dao/projectDao.js";
-import mongoose from 'mongoose';
+import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 // API handler for getting project by id
-export async function getProjectService (req, res) {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'Invalid project ID' });
+export async function getProjectService(req, res) {
+  const { id } = req.params.id;
+
+  const projectValidation = await validateEntity(id, getProject, "project")
+  if (!projectValidation.valid) {
+    return res.status(400).json({ message: projectValidation.message })
   }
+
   try {
-    const project = await getProject(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Project not found' });
+    const project = await getProject(id);
     res.json(project);
   } catch (error) {
     res.status(500).json({ message: error.message });

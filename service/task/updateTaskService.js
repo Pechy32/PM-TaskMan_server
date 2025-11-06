@@ -1,53 +1,47 @@
-import mongoose from "mongoose";
 import { getTaskById, updateTask } from "../../dao/taskDao.js";
 import { getProject } from "../../dao/projectDao.js";
 import { getUser } from "../../dao/userDao.js";
+import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 export async function updateTaskService(req, res) {
-  const { id } = req.params;
+  const id = req.params.id;
   const updates = req.body;
 
-  // Validation for task ID
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid task ID" });
+  // validate task existence
+  const validateTask = await validateEntity(id, getTaskById, "task");
+  if (!validateTask.valid) {
+    return res.status(400).json({ message: validateTask.message });
   }
 
-  // Basic validation for update data
-  if (!updates || Object.keys(updates).length === 0) {
-    return res.status(400).json({ message: "No update data provided" });
+  //validate project existence
+  const projectValidation = await validateEntity(dtoIn.projectId, getProject, "project")
+  if (!projectValidation.valid) {
+    return res.status(400).json({ message: projectValidation.message })
   }
 
-  // Example validation: title should not be empty if provided
-  if (updates.title !== undefined && updates.title.trim() === "") {
-    return res.status(400).json({ message: "Task title cannot be empty" });
-  }
-
-  // Validation whether project with given ID exists
-  if (!getProject(updates.projectId)) {
-    return res.status(400).json({ message: "Associated project not found" });
-  }
-
-  // Validation wheter parent task exists if provided
-  if (updates.parentTaskId) {
-    const parentTask = await getTaskById(updates.parentTaskId);
-    if (!parentTask) {
-      return res.status(400).json({ message: "Parent task not found" });
+  //validate assigned user existence
+  if (dtoIn.assignedTo) {
+    const validateUser = await validateEntity(dtoIn.assignedTo, getUser, "user");
+    if (!validateUser.valid) {
+      return res.status(400).json({ message: validateUser.message });
     }
   }
 
-  // Validation wheter assigned user exists if provided
-  if (updates.assignedTo) {
-    if(!getUser(updates.assignedTo)) {
-      return res.status(400).json({ message: "Assigned user not found" });
+  //validate parent task existence
+  if (dtoIn.parentTaskId) {
+    const validateTask = await validateEntity(dtoIn.parentTaskId, getTaskById, "task");
+    if (!validateTask.valid) {
+      return res.status(400).json({ message: validateTask.message });
     }
   }
 
   try {
     const updatedTask = await updateTask(id, updates);
-    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
-
     res.json(updatedTask);
   } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ errors: error.errors });
+    }
     res.status(500).json({ message: error.message });
   }
 }

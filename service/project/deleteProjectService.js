@@ -1,13 +1,17 @@
-import { deleteProject } from "../../dao/projectDao.js";
-import mongoose from 'mongoose';
+import { deleteProject, getProject } from "../../dao/projectDao.js";
+import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 // API handler for deleting project
 export async function deleteProjectService (req, res) {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'Invalid project ID' });
+  const { id } = req.params.id;
+  
+  const projectValidation = await validateEntity(id, getProject, "project")
+  if (!projectValidation.valid){
+    return res.status(400).json({ message: projectValidation.message })
   }
+
   try {
-    const message = await deleteProject(req.params.id);
+    const message = await deleteProject(id);
     res.json({ message });
   } catch (error) {
     res.status(500).json({ message: error.message });

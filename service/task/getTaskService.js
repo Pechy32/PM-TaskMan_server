@@ -1,17 +1,16 @@
-import mongoose from "mongoose";
 import { getTaskById, getSubtasks } from "../../dao/taskDao.js";
+import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 export async function getTaskService(req, res) {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid task ID" });
+  const validateTask = await validateEntity(id, getTaskById, "task");
+  if (!validateTask.valid) {
+    return res.status(400).json({ message: validateTask.message });
   }
 
   try {
     const task = await getTaskById(id);
-    if (!task) return res.status(404).json({ message: "Task not found" });
-
     const subtasks = await getSubtasks(id);
     res.json({ ...task.toObject(), subtasks });
   } catch (error) {

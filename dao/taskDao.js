@@ -10,8 +10,13 @@ export async function getTaskById(taskId) {
     .populate("comments.authorId", "name");
 }
 
-export async function getAllTasks(){
-  return await Task.find()
+export async function getAllTasks() {
+  return await Task.find({
+    $or: [
+      { parentTaskId: { $exists: false } },
+      { parentTaskId: null }
+    ]
+  })
     .populate("assignedTo", "name email")
     .sort({ createdAt: -1 });
 }

@@ -1,14 +1,16 @@
 import { updateProject } from "../../dao/projectDao.js";
-import mongoose from 'mongoose';
 
 // API handler for updating project
-export async function updateProjectService (req, res) {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'Invalid project ID' });
+export async function updateProjectService(req, res) {
+  const { id } = req.params.id;
+
+  const projectValidation = await validateEntity(id, getProject, "project")
+  if (!projectValidation.valid) {
+    return res.status(400).json({ message: projectValidation.message })
   }
+
   try {
-    const project = await updateProject(req.params.id, req.body);
-    if (!project) return res.status(404).json({ message: 'Project not found' });
+    const project = await updateProject(id, req.body);
     res.json(project);
   } catch (error) {
     if (error.name === 'ValidationError') {
