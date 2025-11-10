@@ -11,9 +11,9 @@ export async function deleteProjectService (req, res) {
   }
 
   try {
-    const message = await deleteProject(id);
-    res.json({ message });
+    const message = await deleteProject(req.params.id);
+    return res.json({ message });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

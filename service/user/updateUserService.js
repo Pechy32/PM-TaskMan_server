@@ -9,11 +9,11 @@ export async function updateUserService (req, res) {
   try {
     const user = await updateUser(req.params.id, req.body);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json(user);
+    return res.json(user);
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ errors: error.errors });
     }
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

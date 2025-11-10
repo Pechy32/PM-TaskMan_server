@@ -11,9 +11,9 @@ const router = express.Router();
 
 router.get('/', getAllProjectsService);
 router.post('/', createProjectService);
-router.get('/:id', getProjectService);
-router.get('/:id/tasks', getTasksByProjectService);
-router.patch('/:id', updateProjectService);
-router.delete('/:id', deleteProjectService);
+// router.get('/:projectId', getProjectService);
+// router.get('/:projectId/tasks', getTasksByProjectService);
+// router.patch('/:projectId', updateProjectService);
+// router.delete('/:projectId', deleteProjectService);
 
 export default router;

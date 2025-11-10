@@ -37,11 +37,10 @@ export async function updateTaskService(req, res) {
 
   try {
     const updatedTask = await updateTask(id, updates);
-    res.json(updatedTask);
+    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
+
+    return res.json(updatedTask);
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(400).json({ errors: error.errors });
-    }
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

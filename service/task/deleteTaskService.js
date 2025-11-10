@@ -11,8 +11,10 @@ export async function deleteTaskService(req, res) {
 
   try {
     const deleted = await deleteTask(id);
-    res.json({ message: "Task deleted successfully" });
+    if (!deleted) return res.status(404).json({ message: "Task not found" });
+
+    return res.json({ message: "Task deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

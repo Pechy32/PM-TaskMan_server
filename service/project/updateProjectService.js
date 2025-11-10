@@ -10,12 +10,13 @@ export async function updateProjectService(req, res) {
   }
 
   try {
-    const project = await updateProject(id, req.body);
-    res.json(project);
+    const project = await updateProject(req.params.id, req.body);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    return res.json(project);
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ errors: error.errors });
     }
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

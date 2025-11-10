@@ -4,8 +4,8 @@ import { getAllProjects } from "../../dao/projectDao.js";
 export async function getAllProjectsService (req, res) {
   try {
     const projects = await getAllProjects();
-    res.json(projects);
+    return res.json(projects);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

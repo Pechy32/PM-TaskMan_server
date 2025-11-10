@@ -8,8 +8,8 @@ export async function deleteUserService (req, res) {
   }
   try {
     const message = await deleteUser(req.params.id);
-    res.json({ message });
+    return res.json({ message });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }

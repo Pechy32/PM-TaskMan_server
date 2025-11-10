@@ -9,8 +9,9 @@ export async function getAllTasksService(req, res) {
         return { ...task.toObject(), subtasks };
       })
     );
-    res.json(tasksWithSubtasks);
+
+    return res.json(tasksWithSubtasks);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 }
