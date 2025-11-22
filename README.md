@@ -32,6 +32,7 @@ All environment variables must be stored in `.env` file in root of repository. D
 
 ### App
 - `PORT` = port where app is running locally
+- `AUTH_ENABLED` = defines if auth middleware is used
 
 ### Database
 - `DB_HOST` = host of local or remote database

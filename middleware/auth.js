@@ -27,6 +27,10 @@ function isRefreshTokenPath(method, url) {
 }
 
 async function authMiddleware(req, res, next) {
+    if (process.env.AUTH_ENABLED !== "true") {
+        return next();
+    }
+
     const { method, originalUrl, headers } = req;
     const [ trimmedUrl ] = originalUrl.split("?")
     const publicRoutesForMethod = PUBLIC_PATHS_BY_METHOD[method];

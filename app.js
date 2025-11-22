@@ -16,7 +16,7 @@ import { validateProject } from './middleware/projectIdValidator.js';
 const app = express();
 
 // Set ut environment
-dotenv.config();
+dotenv.config({ quiet: true });
 const PORT = process.env.PORT || 8080;
 const DB_HOST = process.env.DB_HOST || "mongodb://localhost";
 const DB_PORT = process.env.DB_PORT || 27017;
@@ -28,10 +28,7 @@ app.use(cors()); // allows all origins by default
 
 // Database connection
 const databaseConnectionUri = `${DB_HOST}:${DB_PORT}/${DB_PATH}`;
-mongoose.connect(databaseConnectionUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(databaseConnectionUri);
 
 mongoose.connection.on('connected', () => {
   console.log('Connected to MongoDB');
