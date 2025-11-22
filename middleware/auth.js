@@ -6,7 +6,9 @@ const PUBLIC_PATHS_BY_METHOD = {
         // "/api/users",
     ], 
     "POST": [
+        "/api/users",
         "/api/auth/login",
+        "/api/auth/refresh-token",
         // ...
     ],
     "PATCH": [
@@ -55,15 +57,18 @@ async function authMiddleware(req, res, next) {
         if(userType === "admin")
             return next();
 
-        // project specific authorization
-        const { projectId } = req;
-        const userRoleInProject = await getUserRoleForProject(userId, projectId);
-        
-        if(!userRoleInProject) {
-            return res.status(401).send("Unathorized - NotMemberOfProject");
+        if(!trimmedUrl.includes("/api/projects")) {
+            // project specific authorization
+            const { projectId } = req;
+            const userRoleInProject = await getUserRoleForProject(userId, projectId);
+
+            if(!userRoleInProject) {
+                return res.status(401).send("Unathorized - NotMemberOfProject");
+            }
+
+            req.userRoleInProject = userRoleInProject;
         }
 
-        req.userRoleInProject = userRoleInProject;
         return next();
     }
 

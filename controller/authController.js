@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { loginWithEmail } from '../service/auth/authService.js';
+import { refreshToken } from "../service/auth/jwtService.js";
 
 const router = express.Router();
 
@@ -22,5 +23,10 @@ router.post('/login', async (req, res, next) => {
 
     return res.status(200).send(tokens);
 });
+
+router.post('/refresh-token', async (req, res, next) => {
+    const oldRefreshToken = req.body.refreshToken;
+    return res.send(refreshToken(oldRefreshToken));
+})
 
 export default router;
