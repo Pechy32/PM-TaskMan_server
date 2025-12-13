@@ -3,7 +3,7 @@ import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 // API handler for deleting project
 export async function deleteProjectService (req, res) {
-  const { id } = req.params.id;
+  const { projectId: id } = req.params;
   
   const projectValidation = await validateEntity(id, getProject, "project")
   if (!projectValidation.valid){
@@ -11,7 +11,7 @@ export async function deleteProjectService (req, res) {
   }
 
   try {
-    const message = await deleteProject(req.params.id);
+    const message = await deleteProject(id);
     return res.json({ message });
   } catch (error) {
     return res.status(500).json({ message: error.message });

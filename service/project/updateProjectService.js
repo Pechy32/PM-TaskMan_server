@@ -1,8 +1,9 @@
-import { updateProject } from "../../dao/projectDao.js";
+import { getProject, updateProject} from "../../dao/projectDao.js";
+import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 // API handler for updating project
 export async function updateProjectService(req, res) {
-  const { id } = req.params.id;
+  const { projectId: id } = req.params;
 
   const projectValidation = await validateEntity(id, getProject, "project")
   if (!projectValidation.valid) {
@@ -10,7 +11,7 @@ export async function updateProjectService(req, res) {
   }
 
   try {
-    const project = await updateProject(req.params.id, req.body);
+    const project = await updateProject(id, req.body);
     if (!project) return res.status(404).json({ message: 'Project not found' });
     return res.json(project);
   } catch (error) {

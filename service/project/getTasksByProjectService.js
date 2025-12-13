@@ -3,7 +3,7 @@ import { getTasksByProject, getSubtasks } from "../../dao/taskDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 export async function getTasksByProjectService(req, res) {
-    const id = req.params.id;
+    const { projectId: id } = req.params;
     
     const projectValidation = await validateEntity(id, getProject, "project")
     if (!projectValidation.valid) {

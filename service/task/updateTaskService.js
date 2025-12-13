@@ -4,17 +4,18 @@ import { getUser } from "../../dao/userDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 export async function updateTaskService(req, res) {
-  const id = req.params.id;
-  const updates = req.body;
+  const { projectId } = req;
+  const { taskId }  = req.params;
+  const dtoIn = req.body;
 
   // validate task existence
-  const validateTask = await validateEntity(id, getTaskById, "task");
+  const validateTask = await validateEntity(taskId, getTaskById, "task");
   if (!validateTask.valid) {
     return res.status(400).json({ message: validateTask.message });
   }
 
   //validate project existence
-  const projectValidation = await validateEntity(dtoIn.projectId, getProject, "project")
+  const projectValidation = await validateEntity(projectId, getProject, "project")
   if (!projectValidation.valid) {
     return res.status(400).json({ message: projectValidation.message })
   }
@@ -36,7 +37,7 @@ export async function updateTaskService(req, res) {
   }
 
   try {
-    const updatedTask = await updateTask(id, updates);
+    const updatedTask = await updateTask(taskId, dtoIn);
     if (!updatedTask) return res.status(404).json({ message: "Task not found" });
 
     return res.json(updatedTask);

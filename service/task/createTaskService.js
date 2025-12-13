@@ -4,10 +4,11 @@ import { getProject } from "../../dao/projectDao.js";
 import { getUser } from "../../dao/userDao.js";
 
 export async function createTaskService(req, res) {
-  const dtoIn = req.body;
+    const dtoIn = req.body;
+    const { projectId } = req;
 
   //validate project existence
-  const projectValidation = await validateEntity(dtoIn.projectId, getProject, "project")
+  const projectValidation = await validateEntity(projectId, getProject, "project")
   if (!projectValidation.valid) {
     return res.status(400).json({ message: projectValidation.message })
   }
@@ -29,7 +30,7 @@ export async function createTaskService(req, res) {
   }
 
   try {
-    const task = await createTask(taskData);
+    const task = await createTask({...dtoIn, projectId: projectId});
     return res.status(201).json(task);
   } catch (error) {
     return res.status(500).json({ message: error.message });
