@@ -12,7 +12,7 @@ export async function deleteProjectService (req, res) {
 
   try {
     const message = await deleteProject(id);
-    return res.json({ message });
+    return res.json({ message: "Successfully deleted project" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
