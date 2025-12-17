@@ -1,6 +1,6 @@
 import express from 'express';
 import { loginWithEmail } from '../service/auth/authService.js';
-import { refreshToken } from "../service/auth/jwtService.js";
+import { refreshToken, generateTokens } from "../service/auth/jwtService.js";
 import passport from "passport";
 
 const router = express.Router();
@@ -32,8 +32,14 @@ router.post('/refresh-token', async (req, res, next) => {
 // Google auth
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/google/callback",
-    passport.authenticate("google", { failureRedirect: "/" }),
-    (req, res) => res.redirect("/")
+  passport.authenticate("google", { session: false }),
+  (req, res) => {
+    const user = req.user;
+
+    const tokens = generateTokens(user);
+
+    res.status(200).json(tokens);
+  }
 );
 
 export default router;

@@ -1,6 +1,6 @@
 import { getTaskById, updateTask } from "../../dao/taskDao.js";
 import { getProject } from "../../dao/projectDao.js";
-import { getUser } from "../../dao/userDao.js";
+import { getUserById } from "../../dao/userDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 export async function updateTaskService(req, res) {
@@ -22,7 +22,7 @@ export async function updateTaskService(req, res) {
 
   //validate assigned user existence
   if (dtoIn.assignedTo) {
-    const validateUser = await validateEntity(dtoIn.assignedTo, getUser, "user");
+    const validateUser = await validateEntity(dtoIn.assignedTo, getUserById, "user");
     if (!validateUser.valid) {
       return res.status(400).json({ message: validateUser.message });
     }

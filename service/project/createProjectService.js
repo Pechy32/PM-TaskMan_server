@@ -1,11 +1,11 @@
 import { createProject } from "../../dao/projectDao.js";
-import { getUser } from "../../dao/userDao.js";
+import { getUserById } from "../../dao/userDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 export async function createProjectService(req, res) {
   const dtoIn = req.body;
 
-  const ownerValidation = await validateEntity(dtoIn.ownerId, getUser, "user");
+  const ownerValidation = await validateEntity(dtoIn.ownerId, getUserById, "user");
   if (!ownerValidation.valid) {
     return res.status(400).json({ message: ownerValidation.message });
   }

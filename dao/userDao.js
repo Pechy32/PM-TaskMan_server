@@ -9,7 +9,7 @@ export const getAllUsers = async () => {
   return await User.find();
 };
 
-export const getUser = async (id) => {
+export const getUserById = async (id) => {
   return await User.findById(id);
 };
 
