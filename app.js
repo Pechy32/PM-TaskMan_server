@@ -15,6 +15,7 @@ import authMiddleware from './middleware/auth.js'
 import { validateProject } from './middleware/projectIdValidator.js';
 import { setupPassport } from './config/passport.js';
 
+
 const app = express();
 dotenv.config();
 setupPassport();

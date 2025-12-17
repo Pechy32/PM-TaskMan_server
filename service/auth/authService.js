@@ -1,34 +1,47 @@
-import { getUserByEmail, getUser } from '../../dao/userDao.js';
-import { getProject } from '../../dao/projectDao.js';
+import { getUserByEmail, getUser } from "../../dao/userDao.js";
+import { getProject } from "../../dao/projectDao.js";
 
-import { createTokens } from './jwtService.js';
+import { generateTokens } from "./jwtService.js";
+
 
 export async function loginWithEmail(email, password) {
-    const user = await getUserByEmail(email);
-    if(!user) 
-        throw new Error("UserNotFound");
+  const user = await getUserByEmail(email);
+  if (!user) {
+    throw new Error("UserNotFound");
+  }
 
-    if(password !== user.passwordHash)
-        throw new Error("WrongPassword");
+  if (!user.passwordHash) {
+    throw new Error("PasswordLoginNotAllowed");
+  }
 
-    return createTokens(user.email, user.isAdmin ? "admin" : "user");
+  // TODO: bcrypt.compare()
+  if (password !== user.passwordHash) {
+    throw new Error("WrongPassword");
+  }
+
+  return generateTokens(user);
 }
 
-export async function getUserRoleForProject(userIdentifier, projectIdentifier) {
-    // find specific project
-    const project = await getProject(projectIdentifier);
-    if(!project)
-        throw new Error("ProjectNotFound")
-    
-    // is owner?
-    const ownerUser = await getUser(project.ownerId)
-    if(ownerUser.email === userIdentifier)
-        return "owner";
 
-    // is member? With what role?
-    const userAsMember = project.members.find(m => m.user === userIdentifier);
-    if(userAsMember && userAsMember.role)
-        return userAsMember.role; // "editor" | "viewer"
+export async function getUserRoleForProject(userId, projectId) {
+  const project = await getProject(projectId);
+  if (!project) {
+    throw new Error("ProjectNotFound");
+  }
 
-    return false;
+  // Owner
+  if (project.ownerId.toString() === userId.toString()) {
+    return "owner";
+  }
+
+  // Member
+  const member = project.members.find(
+    (m) => m.user.toString() === userId.toString()
+  );
+
+  if (member?.role) {
+    return member.role; // "editor" | "viewer"
+  }
+
+  return false;
 }
