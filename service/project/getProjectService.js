@@ -1,20 +1,36 @@
 import { getProject } from "../../dao/projectDao.js";
-import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
-// API handler for getting project by id
-export async function getProjectService(req, res) {
-  const { projectId: id } = req.params;
 
-  const projectValidation = await validateEntity(id, getProject, "project")
-  if (!projectValidation.valid) {
-    return res.status(400).json({ message: projectValidation.message })
+export async function getProjectService(projectId, user) {
+  if (!projectId) {
+    throw new Error("ProjectIdRequired");
   }
 
-  try {
-    const project = await getProject(id);
-    if (!project) return res.status(404).json({ message: 'Project not found' });
-    return res.json(project);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+  const project = await getProject(projectId);
+  if (!project) {
+    throw new Error("ProjectNotFound");
   }
+
+  // admin má neomezený přístup
+  if (user.role === "admin") {
+    return project;
+  }
+
+  const userId = user.id;
+
+  // owner
+  if (project.ownerId.toString() === userId) {
+    return project;
+  }
+
+  // member
+  const isMember = project.members.some(
+    (m) => m.userId.toString() === userId
+  );
+
+  if (isMember) {
+    return project;
+  }
+
+  throw new Error("Forbidden");
 }
