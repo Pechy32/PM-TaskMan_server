@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { createProjectService } from '../service/project/createProjectService.js';
-import { getAllProjectsService } from '../service/project/getAllProjectsService.js';
+import { getProjectsForUserContext } from '../service/project/getAllProjectsService.js';
 import { getProjectService } from '../service/project/getProjectService.js';
 import { updateProjectService } from '../service/project/updateProjectService.js';
 import { deleteProjectService } from '../service/project/deleteProjectService.js';
@@ -9,7 +9,15 @@ import { getTasksByProjectService } from '../service/project/getTasksByProjectSe
 
 const router = express.Router();
 
-router.get('/', getAllProjectsService);
+router.get("/", async (req, res) => {
+  try {
+    const projects = await getProjectsForUserContext(req.user);
+    res.status(200).json(projects);
+  } catch (err) {
+    res.status(500).json({ error: "InternalServerError" });
+  }
+});
+
 router.post('/', createProjectService);
 router.get('/:projectId', getProjectService);
 router.get('/:projectId/with-tasks', getTasksByProjectService);

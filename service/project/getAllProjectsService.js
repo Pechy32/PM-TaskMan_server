@@ -1,11 +1,15 @@
-import { getAllProjects } from "../../dao/projectDao.js";
+import { getAllProjects, getProjectsForUser } from "../../dao/projectDao.js";
 
-// API handler for getting all projects
-export async function getAllProjectsService (req, res) {
-  try {
-    const projects = await getAllProjects();
-    return res.json(projects);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+export async function getProjectsForUserContext(user) {
+  if (!user || !user.id) {
+    throw new Error("UserRequired");
   }
+
+  // admin vidí vše
+  if (user.role === "admin") {
+    return getAllProjects();
+  }
+
+  // běžný user jen svoje projekty
+  return getProjectsForUser(user.id);
 }

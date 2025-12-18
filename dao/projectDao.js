@@ -28,3 +28,12 @@ export const updateProject = async (id, data) => {
 export const deleteProject = async (id) => {
   return await Project.findByIdAndDelete(id);
 };
+
+export const getProjectsForUser = async (userId) => {
+  return await Project.find({
+    $or: [
+      { ownerId: userId },
+      { "members.userId": userId }
+    ]
+  });
+};

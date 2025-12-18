@@ -2,9 +2,7 @@ import { verifyToken } from "../service/auth/jwtService.js";
 import { getUserRoleForProject } from "../service/auth/authService.js";
 
 const PUBLIC_PATHS_BY_METHOD = {
-    GET: [
-        "/api/users/me",
-    ],
+    GET: [],
     POST: [
         "/api/users",
         "/api/auth/login",
@@ -19,6 +17,7 @@ function isRefreshTokenPath(method, url) {
 }
 
 async function authMiddleware(req, res, next) {
+
     if (process.env.AUTH_ENABLED !== "true") {
         return next();
     }
@@ -63,8 +62,10 @@ async function authMiddleware(req, res, next) {
     }
 
     // project authorization
-    if (trimmedUrl.startsWith("/api/projects")) {
-        const { projectId } = req;
+    if (
+        trimmedUrl.startsWith("/api/projects/") &&
+        req.projectId
+    ) {
 
         const userRoleInProject = await getUserRoleForProject(
             userId,
