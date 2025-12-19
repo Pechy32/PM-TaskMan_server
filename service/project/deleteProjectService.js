@@ -1,19 +1,28 @@
 import { deleteProject, getProject } from "../../dao/projectDao.js";
-import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
-// API handler for deleting project
-export async function deleteProjectService (req, res) {
-  const { projectId: id } = req.params;
-  
-  const projectValidation = await validateEntity(id, getProject, "project")
-  if (!projectValidation.valid){
-    return res.status(400).json({ message: projectValidation.message })
+export async function deleteProjectService(projectId, user) {
+  if (!projectId) {
+    throw new Error("ProjectIdRequired");
   }
 
-  try {
-    const message = await deleteProject(id);
-    return res.json({ message: "Successfully deleted project" });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+  const project = await getProject(projectId);
+  if (!project) {
+    throw new Error("ProjectNotFound");
   }
+
+  // admin může vždy
+  if (user.role === "admin") {
+    await deleteProject(projectId);
+    return;
+  }
+
+  const userId = user.id;
+
+  // owner může mazat
+  if (project.ownerId.toString() === userId) {
+    await deleteProject(projectId);
+    return;
+  }
+
+  throw new Error("Forbidden");
 }

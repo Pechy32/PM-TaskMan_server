@@ -9,6 +9,9 @@ import { getTasksByProjectService } from '../service/project/getTasksByProjectSe
 
 const router = express.Router();
 
+/**
+ * GET /api/projects
+ */
 router.get("/", async (req, res) => {
   try {
     const projects = await getProjectsForUserContext(req.user);
@@ -79,9 +82,36 @@ router.patch("/:projectId", async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/projects/:projectId
+ */
+router.delete("/:projectId", async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const user = req.user; // { id, role }
+
+    await deleteProjectService(projectId, user);
+
+    res.status(204).send(); // No Content
+  } catch (err) {
+    if (err.message === "ProjectIdRequired") {
+      return res.status(400).json({ error: err.message });
+    }
+
+    if (err.message === "ProjectNotFound") {
+      return res.status(404).json({ error: err.message });
+    }
+
+    if (err.message === "Forbidden") {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    res.status(500).json({ error: "InternalServerError" });
+  }
+});
+
 
 router.post('/', createProjectService);
 router.get('/:projectId/with-tasks', getTasksByProjectService);
-router.delete('/:projectId', deleteProjectService);
 
 export default router;
