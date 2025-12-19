@@ -1,23 +1,53 @@
 import { getProject, updateProject} from "../../dao/projectDao.js";
-import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
-// API handler for updating project
-export async function updateProjectService(req, res) {
-  const { projectId: id } = req.params;
-
-  const projectValidation = await validateEntity(id, getProject, "project")
-  if (!projectValidation.valid) {
-    return res.status(400).json({ message: projectValidation.message })
+export async function updateProjectService(projectId, user, updateData) {
+  if (!projectId) {
+    throw new Error("ProjectIdRequired");
   }
 
-  try {
-    const project = await updateProject(id, req.body);
-    if (!project) return res.status(404).json({ message: 'Project not found' });
-    return res.json(project);
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ errors: error.errors });
+  const project = await getProject(projectId);
+  if (!project) {
+    throw new Error("ProjectNotFound");
+  }
+
+  // admin has full access
+  if (user.role === "admin") {
+    return updateProject(projectId, updateData);
+  }
+
+  const userId = user.id;
+
+  // owner has full access
+  if (project.ownerId.toString() === userId) {
+    return updateProject(projectId, updateData);
+  }
+
+  // get members role
+  const member = project.members.find(
+    (m) => m.userId.toString() === userId
+  );
+
+  if (!member) {
+    throw new Error("Forbidden");
+  }
+
+  // editor has restricted access
+  if (member.role === "editor") {
+    const allowedFields = ["name", "description"];
+
+    const sanitizedUpdate = Object.fromEntries(
+      Object.entries(updateData).filter(([key]) =>
+        allowedFields.includes(key)
+      )
+    );
+
+    if (Object.keys(sanitizedUpdate).length === 0) {
+      throw new Error("Forbidden");
     }
-    return res.status(500).json({ message: error.message });
+
+    return updateProject(projectId, sanitizedUpdate);
   }
+
+  // viewer
+  throw new Error("Forbidden");
 }
