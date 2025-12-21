@@ -15,6 +15,10 @@ import authMiddleware from './middleware/auth.js'
 import { validateProject } from './middleware/projectIdValidator.js';
 import { setupPassport } from './config/passport.js';
 
+// --- SWAGGER ---
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import yaml from "yaml";
 
 const app = express();
 dotenv.config();
@@ -45,6 +49,27 @@ app.use(passport.session());
 // --- LOGGER ---
 app.use(logger);
 
+// --- SWAGGER SETUP ---
+try {
+  const swaggerFile = fs.readFileSync("./swagger.yaml", "utf8");
+  const swaggerDocument = yaml.parse(swaggerFile);
+
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument, {
+      explorer: true,
+      swaggerOptions: {
+        persistAuthorization: true, // keep Bearer token after refresh
+      },
+    })
+  );
+
+  console.log("Swagger UI available at /api-docs");
+} catch (err) {
+  console.error("Failed to load swagger.yaml:", err.message);
+}
+
 // --- DB CONNECTION ---
 const databaseConnectionUri = `${DB_HOST}:${DB_PORT}/${DB_PATH}`;
 mongoose.connect(databaseConnectionUri);
@@ -59,4 +84,5 @@ app.use('/api/projects', authMiddleware, projectController);
 // --- SERVER START ---
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
 });
