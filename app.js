@@ -55,7 +55,6 @@ mongoose.connection.on('error', (err) => console.error('MongoDB connection error
 app.use('/api/auth', authController);
 app.use('/api/users', authMiddleware, userController);
 app.use('/api/projects', authMiddleware, projectController);
-app.use('/api/projects/:projectId/tasks', validateProject, authMiddleware, taskController);
 
 // --- SERVER START ---
 app.listen(PORT, () => {

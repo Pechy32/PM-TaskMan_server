@@ -8,6 +8,8 @@ import { deleteProjectService } from '../service/project/deleteProjectService.js
 import { getTasksByProjectService } from '../service/project/getTasksByProjectService.js';
 import { createTaskService } from '../service/task/createTaskService.js';
 import { getTaskService } from '../service/task/getTaskService.js';
+import { updateTaskService } from '../service/task/updateTaskService.js';
+import { deleteTaskService } from '../service/task/deleteTaskService.js';
 
 const router = express.Router();
 
@@ -125,6 +127,16 @@ router.post("/:projectId/tasks", createTaskService);
  * Přístup: admin | owner | member (editor/viewer)
  */
 router.get("/:projectId/tasks/:taskId", getTaskService);
+
+/**
+ * PATCH /api/projects/:projectId/tasks/:taskId
+ */
+router.patch("/:projectId/tasks/:taskId", updateTaskService);
+
+/**
+ * DELETE /api/projects/:projectId/tasks/:taskId
+ */
+router.delete("/:projectId/tasks/:taskId", deleteTaskService);
 
 router.post('/', createProjectService);
 router.get('/:projectId/with-tasks', getTasksByProjectService);
