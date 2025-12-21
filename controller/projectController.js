@@ -6,6 +6,8 @@ import { getProjectService } from '../service/project/getProjectService.js';
 import { updateProjectService } from '../service/project/updateProjectService.js';
 import { deleteProjectService } from '../service/project/deleteProjectService.js';
 import { getTasksByProjectService } from '../service/project/getTasksByProjectService.js';
+import { createTaskService } from '../service/task/createTaskService.js';
+import { getTaskService } from '../service/task/getTaskService.js';
 
 const router = express.Router();
 
@@ -110,6 +112,19 @@ router.delete("/:projectId", async (req, res) => {
   }
 });
 
+/**
+ * POST /api/projects/:projectId/tasks
+ * Vytvoří task v projektu
+ * Přístup: admin | owner | editor
+ */
+router.post("/:projectId/tasks", createTaskService);
+
+/**
+ * GET /api/projects/:projectId/tasks/:taskId
+ * Vrátí jeden task projektu
+ * Přístup: admin | owner | member (editor/viewer)
+ */
+router.get("/:projectId/tasks/:taskId", getTaskService);
 
 router.post('/', createProjectService);
 router.get('/:projectId/with-tasks', getTasksByProjectService);
