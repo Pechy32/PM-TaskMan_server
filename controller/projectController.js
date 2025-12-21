@@ -10,6 +10,12 @@ import { createTaskService } from '../service/task/createTaskService.js';
 import { getTaskService } from '../service/task/getTaskService.js';
 import { updateTaskService } from '../service/task/updateTaskService.js';
 import { deleteTaskService } from '../service/task/deleteTaskService.js';
+import {
+  getTaskCommentsService,
+  createTaskCommentService,
+  deleteTaskCommentService,
+  updateCommentService,
+} from "../service/task/commentService.js";
 
 const router = express.Router();
 
@@ -140,5 +146,38 @@ router.delete("/:projectId/tasks/:taskId", deleteTaskService);
 
 router.post('/', createProjectService);
 router.get('/:projectId/with-tasks', getTasksByProjectService);
+
+
+// --------------------- COMMENTS -----------------------
+
+/**
+ * GET /projects/:projectId/tasks/:taskId/comments
+ */
+router.get(
+  "/:projectId/tasks/:taskId/comments",
+  getTaskCommentsService
+);
+
+/**
+ * POST /projects/:projectId/tasks/:taskId/comments
+ */
+router.post(
+  "/:projectId/tasks/:taskId/comments",
+  createTaskCommentService
+);
+
+/**
+ * DELETE /projects/:projectId/tasks/:taskId/comments/:commentId
+ */
+router.delete(
+  "/:projectId/tasks/:taskId/comments/:commentId",
+  deleteTaskCommentService
+);
+
+/**
+ * PATCH /comments/:commentId
+ * Update comment (author or admin)
+ */
+router.patch("/comments/:commentId", updateCommentService);
 
 export default router;
