@@ -1,3 +1,4 @@
+import { Task } from "../../model/taskModel.js";
 import { getProject } from "../../dao/projectDao.js";
 import { getTaskById, updateTask } from "../../dao/taskDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";

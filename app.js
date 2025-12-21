@@ -5,14 +5,13 @@ import dotenv from "dotenv";
 import session from "express-session";
 import passport from "passport";
 
-import taskController from './controller/taskController.js';
+import commentController from './controller/commentController.js' 
 import userController from './controller/userController.js';
 import projectController from './controller/projectController.js';
 import authController from './controller/authController.js';
 
 import logger from './middleware/logger.js'
 import authMiddleware from './middleware/auth.js'
-import { validateProject } from './middleware/projectIdValidator.js';
 import { setupPassport } from './config/passport.js';
 
 // --- SWAGGER ---
@@ -80,6 +79,7 @@ mongoose.connection.on('error', (err) => console.error('MongoDB connection error
 app.use('/api/auth', authController);
 app.use('/api/users', authMiddleware, userController);
 app.use('/api/projects', authMiddleware, projectController);
+app.use('/api/', authMiddleware, commentController)
 
 // --- SERVER START ---
 app.listen(PORT, () => {
