@@ -2,6 +2,10 @@
  * DELETE /projects/:projectId/tasks/:taskId
  * admin | owner
  * ============================================================ */
+import { validateEntity } from "../../helpers/validators/validateEntity.js";
+import { getProject } from "../../dao/projectDao.js";
+import { getTaskById, deleteTask } from "../../dao/taskDao.js";
+
 export async function deleteTaskService(req, res) {
   const { projectId, taskId } = req.params;
   const user = req.user;
