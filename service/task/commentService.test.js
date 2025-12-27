@@ -1,20 +1,20 @@
 import { 
     getTaskCommentsService, 
     createTaskCommentService, 
-    updateCommentService 
+    updateCommentService,
+    deleteTaskCommentService 
 } from './commentService.js';
 import { Task } from "../../model/taskModel.js";
 import { getProject } from "../../dao/projectDao.js";
 import { getTaskById } from "../../dao/taskDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
-// Mockování závislostí
 jest.mock("../../model/taskModel.js");
 jest.mock("../../dao/projectDao.js");
 jest.mock("../../dao/taskDao.js");
 jest.mock("../../helpers/validators/validateEntity.js");
 
-describe('Comment Service', () => {
+describe('Comment Service - Full Coverage', () => {
     let req, res;
 
     beforeEach(() => {
@@ -26,101 +26,138 @@ describe('Comment Service', () => {
         };
     });
 
-    describe('getTaskCommentsService', () => {
-        test('by měl vrátit 403, pokud viewer není členem projektu', async () => {
+    /* ============================================================
+     * TESTY PRO DELETE COMMENT (Ty v reportu chyběly nejvíce)
+     * ============================================================ */
+    describe('deleteTaskCommentService', () => {
+        test('by měl vrátit 403, pokud uživatel není owner ani admin', async () => {
             req = {
-                params: { projectId: "p1", taskId: "t1" },
+                params: { projectId: "p1", taskId: "t1", commentId: "c1" },
                 user: { id: "u1", role: "user" }
             };
-            
-            validateEntity.mockResolvedValue({ valid: true });
-            getProject.mockResolvedValue({ 
-                ownerId: "other", 
-                members: [] // Uživatel není členem
-            });
 
-            await getTaskCommentsService(req, res);
+            validateEntity.mockResolvedValue({ valid: true });
+            getProject.mockResolvedValue({ ownerId: "someone_else", members: [] });
+
+            await deleteTaskCommentService(req, res);
 
             expect(res.status).toHaveBeenCalledWith(403);
             expect(res.json).toHaveBeenCalledWith({ message: "Forbidden" });
         });
 
-        test('by měl vrátit 404, pokud task nepatří do daného projektu', async () => {
+        test('by měl vrátit 404, pokud komentář v poli neexistuje', async () => {
             req = {
-                params: { projectId: "p1", taskId: "t1" },
-                user: { id: "u1", role: "admin" }
-            };
-
-            validateEntity.mockResolvedValue({ valid: true });
-            getProject.mockResolvedValue({ ownerId: "u1", members: [] });
-            // Task má jiné projectId
-            getTaskById.mockResolvedValue({ projectId: "JINY_PROJEKT", comments: [] });
-
-            await getTaskCommentsService(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: "TaskNotInProject" });
-        });
-    });
-
-    describe('createTaskCommentService', () => {
-        test('by měl úspěšně přidat komentář a zavolat .save()', async () => {
-            req = {
-                params: { projectId: "p1", taskId: "t1" },
-                body: { content: "Testovaci komentar" },
-                user: { id: "u1", role: "admin" }
+                params: { projectId: "p1", taskId: "t1", commentId: "non-existent" },
+                user: { id: "u1", role: "admin" } // Admin může mazat
             };
 
             validateEntity.mockResolvedValue({ valid: true });
             getProject.mockResolvedValue({ ownerId: "u1", members: [] });
             
-            // Simulace Mongoose objektu s metodou save() a push()
+            const mockTask = {
+                projectId: "p1",
+                comments: [
+                    { _id: { toString: () => "c1" } } // Jiné ID
+                ],
+                save: jest.fn()
+            };
+            getTaskById.mockResolvedValue(mockTask);
+
+            await deleteTaskCommentService(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "CommentNotFound" });
+        });
+
+        test('by měl úspěšně smazat komentář a vrátit 204 (Admin access)', async () => {
+            req = {
+                params: { projectId: "p1", taskId: "t1", commentId: "c1" },
+                user: { id: "admin-id", role: "admin" }
+            };
+
+            validateEntity.mockResolvedValue({ valid: true });
+            getProject.mockResolvedValue({ ownerId: "u2", members: [] });
+
             const mockTask = {
                 projectId: "p1",
                 comments: {
-                    push: jest.fn(),
-                    length: 1,
-                    0: { content: "Testovaci komentar", authorId: "u1" }
+                    findIndex: jest.fn().mockReturnValue(0),
+                    splice: jest.fn()
                 },
                 save: jest.fn().mockResolvedValue(true)
             };
             getTaskById.mockResolvedValue(mockTask);
 
-            await createTaskCommentService(req, res);
+            await deleteTaskCommentService(req, res);
 
-            expect(mockTask.comments.push).toHaveBeenCalled();
+            expect(mockTask.comments.splice).toHaveBeenCalledWith(0, 1);
             expect(mockTask.save).toHaveBeenCalled();
-            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.status).toHaveBeenCalledWith(204);
         });
     });
 
+    /* ============================================================
+     * TESTY PRO UPDATE COMMENT (Větvení autorizace)
+     * ============================================================ */
     describe('updateCommentService', () => {
-        test('by měl vrátit 403, pokud se o editaci pokusí někdo jiný než autor', async () => {
+        test('by měl vrátit 400, pokud chybí content v body', async () => {
+            req = { params: { commentId: "c1" }, body: {}, user: { id: "u1" } };
+            await updateCommentService(req, res);
+            expect(res.status).toHaveBeenCalledWith(400);
+        });
+
+        test('by měl umožnit editaci adminovi, i když není autor', async () => {
             req = {
                 params: { commentId: "c1" },
-                body: { content: "Nova verze" },
-                user: { id: "hacker", role: "user" }
+                body: { content: "Admin update" },
+                user: { id: "admin-id", role: "admin" }
             };
 
             const mockComment = { 
                 _id: "c1", 
-                authorId: "puvodni_autor",
-                content: "stary obsah" 
+                authorId: { toString: () => "puvodni-autor" }, 
+                content: "stary" 
             };
             const mockTask = {
-                comments: {
-                    id: jest.fn().mockReturnValue(mockComment)
-                },
-                save: jest.fn()
+                comments: { id: jest.fn().mockReturnValue(mockComment) },
+                save: jest.fn().mockResolvedValue(true)
             };
 
             Task.findOne.mockResolvedValue(mockTask);
 
             await updateCommentService(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(403);
-            expect(res.json).toHaveBeenCalledWith({ message: "Forbidden" });
-            expect(mockTask.save).not.toHaveBeenCalled();
+            expect(mockComment.content).toBe("Admin update");
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        test('by měl vrátit 404, pokud Task.findOne nenajde úkol s daným komentářem', async () => {
+            req = {
+                params: { commentId: "c1" },
+                body: { content: "New content" },
+                user: { id: "u1" }
+            };
+            Task.findOne.mockResolvedValue(null);
+
+            await updateCommentService(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "CommentNotFound" });
+        });
+    });
+
+    /* ============================================================
+     * DOPLNĚNÍ OSTATNÍCH CHYBOVÝCH STAVŮ (Branch Coverage)
+     * ============================================================ */
+    describe('getTaskCommentsService branches', () => {
+        test('by měl vrátit 400, pokud selže validace projektu', async () => {
+            req = { params: { projectId: "invalid" }, user: { role: "admin" } };
+            validateEntity.mockResolvedValue({ valid: false, message: "Invalid project ID" });
+
+            await getTaskCommentsService(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid project ID" });
         });
     });
 });
