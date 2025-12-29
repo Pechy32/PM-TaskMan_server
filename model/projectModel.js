@@ -20,12 +20,25 @@ const projectSchema = new mongoose.Schema({
     trim: true,
   },
   description: String,
+
+  status: {
+    type: String,
+    enum: ["active", "on-hold", "done"],
+    default: "active", 
+  },
+
+  dueDate: {
+    type: Date,
+  },
+
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
+
   members: [projectMemberSchema],
+
 }, { timestamps: true });
 
-export const Project = mongoose.model('Project', projectSchema);
+export const Project = mongoose.model("Project", projectSchema);
