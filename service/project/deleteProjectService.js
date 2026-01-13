@@ -10,7 +10,7 @@ export async function deleteProjectService(projectId, user) {
     throw new Error("ProjectNotFound");
   }
 
-  // admin může vždy
+  // admin access
   if (user.role === "admin") {
     await deleteProject(projectId);
     return;
@@ -18,7 +18,7 @@ export async function deleteProjectService(projectId, user) {
 
   const userId = user.id;
 
-  // owner může mazat
+  // owner access
   if (project.ownerId.toString() === userId) {
     await deleteProject(projectId);
     return;

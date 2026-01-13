@@ -16,6 +16,10 @@ import {
   deleteTaskCommentService,
   updateCommentService,
 } from "../service/task/commentService.js";
+import {
+  addProjectMemberService,
+  getProjectMembersService,
+} from "../service/project/projectMemberService.js";
 
 const router = express.Router();
 
@@ -179,5 +183,21 @@ router.delete(
  * Update comment (author or admin)
  */
 router.patch("/comments/:commentId", updateCommentService);
+
+/**
+ * POST /projects/:projectId/members
+ */
+router.post(
+  "/:projectId/members",
+  addProjectMemberService
+);
+
+/**
+ * GET /projects/:projectId/members
+ */
+router.get(
+  "/:projectId/members",
+  getProjectMembersService
+);
 
 export default router;
