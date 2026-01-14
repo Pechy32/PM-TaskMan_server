@@ -33,11 +33,10 @@ router.get("/me", async (req, res) => {
   }
 });
 
-// TODO: Refactor
-router.get('/', getAllUsersService);
-router.post('/', createUserService);
-router.get('/:id', getUserService);
-router.patch('/:id', updateUserService);
-router.delete('/:id', deleteUserService);
+// router.get('/', getAllUsersService);
+// router.post('/', createUserService);
+// router.get('/:id', getUserService);
+// router.patch('/:id', updateUserService);
+// router.delete('/:id', deleteUserService);
 
 export default router;

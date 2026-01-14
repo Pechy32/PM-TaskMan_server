@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { getUserByEmail, getUserById } from "../../dao/userDao.js";
+import { getUserByEmail, createUser } from "../../dao/userDao.js";
 import { getProject } from "../../dao/projectDao.js";
 import { generateTokens } from "./jwtService.js";
 
