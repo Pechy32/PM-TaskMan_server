@@ -112,3 +112,105 @@ export async function getProjectMembersService(req, res) {
 
   return res.status(200).json(members);
 }
+
+/* ============================================================
+ * PATCH /projects/:projectId/members/:userId
+ * admin | owner
+ * ============================================================ */
+export async function updateProjectMemberRoleService(req, res) {
+  const { projectId, userId } = req.params;
+  const { role } = req.body;
+  const user = req.user;
+
+  if (!["editor", "viewer"].includes(role)) {
+    return res.status(400).json({ message: "InvalidRole" });
+  }
+
+  // validate project
+  const projectValidation = await validateEntity(
+    projectId,
+    getProject,
+    "project"
+  );
+  if (!projectValidation.valid) {
+    return res.status(400).json({ message: projectValidation.message });
+  }
+
+  const project = await getProject(projectId);
+
+  // authorization
+  const isAdmin = user.role === "admin";
+  const isOwner = project.ownerId.toString() === user.id;
+
+  if (!isAdmin && !isOwner) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  // cannot modify owner
+  if (project.ownerId.toString() === userId) {
+    return res.status(400).json({ message: "CannotModifyOwner" });
+  }
+
+  const member = project.members.find(
+    (m) => m.userId.toString() === userId
+  );
+
+  if (!member) {
+    return res.status(404).json({ message: "MemberNotFound" });
+  }
+
+  member.role = role;
+  await project.save();
+
+  return res.status(200).json({
+    userId,
+    role,
+  });
+}
+
+/* ============================================================
+ * DELETE /projects/:projectId/members/:userId
+ * admin | owner
+ * ============================================================ */
+export async function removeProjectMemberService(req, res) {
+  const { projectId, userId } = req.params;
+  const user = req.user;
+
+  // validate project
+  const projectValidation = await validateEntity(
+    projectId,
+    getProject,
+    "project"
+  );
+  if (!projectValidation.valid) {
+    return res.status(400).json({ message: projectValidation.message });
+  }
+
+  const project = await getProject(projectId);
+
+  // authorization
+  const isAdmin = user.role === "admin";
+  const isOwner = project.ownerId.toString() === user.id;
+
+  if (!isAdmin && !isOwner) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  // cannot remove owner
+  if (project.ownerId.toString() === userId) {
+    return res.status(400).json({ message: "CannotRemoveOwner" });
+  }
+
+  const memberIndex = project.members.findIndex(
+    (m) => m.userId.toString() === userId
+  );
+
+  if (memberIndex === -1) {
+    return res.status(404).json({ message: "MemberNotFound" });
+  }
+
+  project.members.splice(memberIndex, 1);
+  await project.save();
+
+  return res.status(204).send();
+}

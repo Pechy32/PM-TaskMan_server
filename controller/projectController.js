@@ -19,6 +19,8 @@ import {
 import {
   addProjectMemberService,
   getProjectMembersService,
+  updateProjectMemberRoleService,
+  removeProjectMemberService,
 } from "../service/project/projectMemberService.js";
 
 const router = express.Router();
@@ -198,6 +200,22 @@ router.post(
 router.get(
   "/:projectId/members",
   getProjectMembersService
+);
+
+/**
+ * PATCH /projects/:projectId/members/:userId
+ */
+router.patch(
+  "/:projectId/members/:userId",
+  updateProjectMemberRoleService
+);
+
+/**
+ * DELETE /projects/:projectId/members/:userId
+ */
+router.delete(
+  "/:projectId/members/:userId",
+  removeProjectMemberService
 );
 
 export default router;
