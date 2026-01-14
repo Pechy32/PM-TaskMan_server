@@ -151,6 +151,60 @@ paths:
   # AUTH
   # =====================
 
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "409":
+          description: Email already registered
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "401":
+          description: Invalid credentials
+
   /auth/google:
     get:
       tags: [Auth]
@@ -202,6 +256,155 @@ paths:
   # =====================
   # PROJECTS
   # =====================
+
+  /projects/{projectId}/members:
+    get:
+      tags: [Projects]
+      summary: Get project members
+      description: >
+        Returns all members of the project.
+        Allowed roles: admin, owner, editor, viewer.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Project members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: string
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    role:
+                      type: string
+                      enum: [editor, viewer]
+        "403":
+          description: Forbidden
+        "404":
+          description: Project not found
+
+    post:
+      tags: [Projects]
+      summary: Add project member
+      description: >
+        Add a user to the project.
+        Allowed roles: admin, project owner.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: string
+                role:
+                  type: string
+                  enum: [editor, viewer]
+                  default: viewer
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMember"
+        "403":
+          description: Forbidden
+        "409":
+          description: User already member
+
+  /projects/{projectId}/members/{userId}:
+    patch:
+      tags: [Projects]
+      summary: Update project member role
+      description: >
+        Change role of a project member.
+        Allowed roles: admin, project owner.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [editor, viewer]
+      responses:
+        "200":
+          description: Member role updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMember"
+        "403":
+          description: Forbidden
+        "404":
+          description: Member not found
+
+    delete:
+      tags: [Projects]
+      summary: Remove project member
+      description: >
+        Remove a user from the project.
+        Allowed roles: admin, project owner.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Member removed
+        "403":
+          description: Forbidden
+        "404":
+          description: Member not found
 
   /projects:
     get:
