@@ -9,6 +9,11 @@ export async function registerWithEmail(name, email, password) {
     throw new Error("InvalidInput");
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!emailRegex.test(email)){
+    throw new Error("InvalidInput");
+  }
+
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
     throw new Error("EmailAlreadyRegistered");
