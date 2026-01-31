@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
 import { Project } from "../model/projectModel.js";
+import {Task} from "../model/taskModel.js";
+import {deleteTasksByProjectId} from "./taskDao.js";
 
 export const createProject = async (data) => {
   const project = new Project(data);
@@ -26,7 +28,17 @@ export const updateProject = async (id, data) => {
 };
 
 export const deleteProject = async (id) => {
-  return await Project.findByIdAndDelete(id);
+    const session = await mongoose.startSession();
+
+    let response;
+    await session.withTransaction(async () => {
+        await deleteTasksByProjectId(id, session);
+        response = await Project.deleteOne({ _id: id }, { session });
+    });
+
+    await session.endSession();
+
+    return response;
 };
 
 export const getProjectsForUser = async (userId) => {

@@ -1,4 +1,6 @@
 import { Task } from '../model/taskModel.js';
+import mongoose from "mongoose";
+import {Project} from "../model/projectModel.js";
 
 export async function createTask(taskData) {
   return await Task.create(taskData);
@@ -37,6 +39,10 @@ export async function updateTask(taskId, updates) {
 
 export async function deleteTask(taskId) {
   return await Task.findByIdAndDelete(taskId);
+}
+
+export async function deleteTasksByProjectId(projectId, session) {
+    return Task.deleteMany({ projectId }, { session });;
 }
 
 export async function addComment(taskId, commentData) {
