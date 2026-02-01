@@ -10,6 +10,8 @@ export async function createProjectService(req, res) {
     return res.status(400).json({ message: ownerValidation.message });
   }
 
+  // isInputValid(dtoIn)
+
   try {
     const project = await createProject(dtoIn);
     res.status(201).json(project);

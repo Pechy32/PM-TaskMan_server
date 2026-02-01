@@ -1,6 +1,4 @@
 import { Task } from '../model/taskModel.js';
-import mongoose from "mongoose";
-import {Project} from "../model/projectModel.js";
 
 export async function createTask(taskData) {
   return await Task.create(taskData);
