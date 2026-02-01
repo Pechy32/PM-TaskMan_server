@@ -425,6 +425,9 @@ paths:
     post:
       tags: [Projects]
       summary: Create project
+      description: >
+        RBAC: authenticated user.
+        Owner must exist.
       security:
         - BearerAuth: []
       requestBody:
@@ -433,11 +436,19 @@ paths:
           application/json:
             schema:
               type: object
-              required: [name]
+              required: [name, ownerId]
               properties:
                 name:
                   type: string
                 description:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, on-hold, done]
+                dueDate:
+                  type: string
+                  format: date
+                ownerId:
                   type: string
       responses:
         "201":
@@ -446,6 +457,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        "400":
+          description: Validation error / user not found
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Server error
 
   /projects/{projectId}:
     get:
@@ -533,6 +554,8 @@ paths:
     post:
       tags: [Tasks]
       summary: Create task
+      description: >
+        RBAC: admin | project owner | editor
       security:
         - BearerAuth: []
       parameters:
@@ -568,7 +591,6 @@ paths:
                 dueDate:
                   type: string
                   format: date
-                  nullable: true
       responses:
         "201":
           description: Task created
@@ -576,6 +598,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        "400":
+          description: Invalid project / user / parent task
+        "403":
+          description: Forbidden
+        "500":
+          description: Server error
 
   /projects/{projectId}/tasks/{taskId}:
     get:

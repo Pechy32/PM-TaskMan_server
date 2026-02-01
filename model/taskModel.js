@@ -10,6 +10,7 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+    maxlength:5000,
   },
   createdAt: {
     type: Date,
@@ -32,12 +33,15 @@ const taskSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+    minlenght:1,
+    maxlength:1000,
   },
   description: String,
   status: {
     type: String,
     enum: ["todo", "in-progress", "done"],
     default: "todo",
+    maxlength: 5000,
   },
   priority: {
     type: String,
