@@ -26,6 +26,18 @@ components:
 
   schemas:
 
+    ValidationError:
+        type: object
+        properties:
+          errors:
+            type: object
+
+    Error:
+        type: object
+        properties:
+          message:
+            type: string
+
     TokenPair:
       type: object
       properties:
