@@ -1,5 +1,5 @@
 import { getProject, updateProject } from "../../dao/projectDao.js";
-import { getUserById } from "../../dao/userDao.js";
+import { getUserByEmail } from "../../dao/userDao.js";
 import { validateEntity } from "../../helpers/validators/validateEntity.js";
 
 /* ============================================================
@@ -8,12 +8,12 @@ import { validateEntity } from "../../helpers/validators/validateEntity.js";
  * ============================================================ */
 export async function addProjectMemberService(req, res) {
   const { projectId } = req.params;
-  const { userId, role = "viewer" } = req.body;
+  const { email, role = "viewer" } = req.body;
   const user = req.user; // { id, role }
 
   // validate input
-  if (!userId) {
-    return res.status(400).json({ message: "UserIdRequired" });
+  if (!email || typeof email !== "string") {
+    return res.status(400).json({ message: "UserEmailRequired" });
   }
 
   if (!["editor", "viewer"].includes(role)) {
@@ -40,19 +40,22 @@ export async function addProjectMemberService(req, res) {
     return res.status(403).json({ message: "Forbidden" });
   }
 
-  // validate user existence
-  const userValidation = await validateEntity(
-    userId,
-    getUserById,
-    "user"
-  );
-  if (!userValidation.valid) {
-    return res.status(400).json({ message: userValidation.message });
+  // find user by email
+  const memberUser = await getUserByEmail(email.toLowerCase());
+  if (!memberUser) {
+    return res.status(404).json({ message: "UserNotFound" });
+  }
+
+  const memberUserId = memberUser._id.toString();
+
+  // prevent adding owner
+  if (project.ownerId.toString() === memberUserId) {
+    return res.status(409).json({ message: "UserIsProjectOwner" });
   }
 
   // prevent duplicates
   const alreadyMember = project.members.some(
-    (m) => m.userId.toString() === userId
+    (m) => m.userId.toString() === memberUserId
   );
 
   if (alreadyMember) {
@@ -60,11 +63,16 @@ export async function addProjectMemberService(req, res) {
   }
 
   // add member
-  project.members.push({ userId, role });
+  project.members.push({
+    userId: memberUserId,
+    role,
+  });
+
   await project.save();
 
   return res.status(201).json({
-    userId,
+    userId: memberUserId,
+    email: memberUser.email,
     role,
   });
 }

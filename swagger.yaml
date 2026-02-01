@@ -300,7 +300,7 @@ paths:
       tags: [Projects]
       summary: Add project member
       description: >
-        Add a user to the project.
+        Add a user to the project by email.
         Allowed roles: admin, project owner.
       security:
         - BearerAuth: []
@@ -316,10 +316,12 @@ paths:
           application/json:
             schema:
               type: object
-              required: [userId]
+              required: [email]
               properties:
-                userId:
+                email:
                   type: string
+                  format: email
+                  example: user@example.com
                 role:
                   type: string
                   enum: [editor, viewer]
@@ -330,9 +332,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProjectMember"
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                  role:
+                    type: string
+                    enum: [editor, viewer]
+        "400":
+          description: Invalid input
         "403":
           description: Forbidden
+        "404":
+          description: User not found
         "409":
           description: User already member
 
